@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./schema-selector/schema-selector.component').then((c) => c.SchemaSelectorComponent)
   },
   {
+    path: 'sections/:schemaId',
+    loadComponent: () => import('./section-page/section-page.component').then((c) => c.SectionPageComponent)
+  },
+  {
     path: 'summary',
     loadComponent: () => import('./request-summary/request-summary.component').then((c) => c.RequestSummaryComponent)
   }

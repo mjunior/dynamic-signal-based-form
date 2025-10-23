@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   standalone: true,
   imports: [],
   template: `<p>section-page works!</p>`,
-  styleUrl: './section-page.css',
+  styleUrl: './section-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SectionPage { }
+export class SectionPageComponent { }
