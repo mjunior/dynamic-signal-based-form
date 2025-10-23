@@ -3,11 +3,12 @@ import { NewRequestStateService } from '../shared/state/new-request.service';
 import { NgClass } from '@angular/common';
 import { Field } from '../shared/new-request.types';
 import { Router } from '@angular/router';
+import { FormFieldComponent } from '../../components/form/form-field/form-field.component';
 
 @Component({
   selector: 'app-section-page',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, FormFieldComponent],
   template: `
     <div class="section-page">
       <div class="sidebar">
@@ -19,9 +20,12 @@ import { Router } from '@angular/router';
       </div>
       <div class="main">
         @for (field of fields(); track field.id) {
-        <div>
-          <p>{{ field.label }}</p>
-        </div>
+          <div>
+            <app-form-field-component
+              [type]="field.type"
+              [label]="field.label"
+            />
+          </div>
         }
 
         <button (click)="prevSection()">Prev</button>
