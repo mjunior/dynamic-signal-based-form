@@ -7,7 +7,7 @@ export const routes: Routes = [
     loadComponent: () => import('./schema-selector/schema-selector.component').then((c) => c.SchemaSelectorComponent)
   },
   {
-    path: 'sections/:schemaId',
+    path: 'sections/:schemaId/:sectionIndex',
     loadComponent: () => import('./section-page/section-page.component').then((c) => c.SectionPageComponent)
   },
   {

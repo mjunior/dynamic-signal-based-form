@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { Schema } from '../shared/new-request.types';
 import { SchemaService } from '../shared/services/schema.service';
 import { Router } from '@angular/router';
+import { NewRequestStateService } from '../shared/state/new-request.service';
 
 @Component({
   selector: 'app-schema-selector',
@@ -24,7 +25,7 @@ import { Router } from '@angular/router';
 export class SchemaSelectorComponent implements OnInit {
   private schemaService = inject(SchemaService);
   private router = inject(Router);
-
+  private state = inject(NewRequestStateService);
   selectedSchemaSignal = signal<Schema | null>(null);
   schemasSignal = signal<Schema[] | null>(null);
 
@@ -39,10 +40,12 @@ export class SchemaSelectorComponent implements OnInit {
   }
 
   start(): void {
-    if (!this.selectedSchemaSignal()){
-      return
+    const schema = this.selectedSchemaSignal();
+    if (!schema) {
+      return;
     };
 
-    this.router.navigate(['new-request/sections', this.selectedSchemaSignal()?.id]);
+    this.state.startNewRequest(schema);
+    this.router.navigate(['new-request/sections', schema.id, 0]);
   }
 }
