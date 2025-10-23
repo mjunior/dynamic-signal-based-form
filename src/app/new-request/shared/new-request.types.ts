@@ -14,6 +14,7 @@ export interface Field {
   label: string;
   type: 'text' | 'number' | 'radio' | 'toggle';
   required?: boolean;
+  placeholder?: string;
   options?: string[];
   default?: any;
 }

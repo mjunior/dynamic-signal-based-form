@@ -15,11 +15,21 @@ import {
 } from '@angular/forms';
 import { Field } from '../../../new-request/shared/new-request.types';
 import { FormFieldInputText } from '../../../components/form/form-field/form-field-input-text/form-field-input-text';
+import { FormFieldInputNumber } from '../../../components/form/form-field/form-field-input-number/form-field-input-number';
+import { FormFieldInputRadio } from '../../../components/form/form-field/form-field-input-radio/form-field-input-radio';
+import { FormFieldInputToggle } from '../../../components/form/form-field/form-field-input-toggle/form-field-input-toggle';
 
 @Component({
   selector: 'app-section-page-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormFieldInputText],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormFieldInputText,
+    FormFieldInputNumber,
+    FormFieldInputRadio,
+    FormFieldInputToggle,
+  ],
   template: `
     <form [formGroup]="form" [class]="formClass">
       @for (field of fields; track field.id) {
@@ -32,18 +42,32 @@ import { FormFieldInputText } from '../../../components/form/form-field/form-fie
               [formControlName]="field.id.toString()"
             />
           } @case ('number') {
-            <app-form-field-input-text
+            <app-form-field-input-number
               [id]="field.id.toString()"
               [label]="field.label"
               [required]="field.required ?? false"
               [formControlName]="field.id.toString()"
+            />
+          } @case ('toggle') {
+            <app-form-field-input-toggle
+              [id]="field.id.toString()"
+              [label]="field.label"
+              [required]="field.required ?? false"
+              [formControlName]="field.id.toString()"
+            />
+          } @case ('radio') {
+            <app-form-field-input-radio
+              [id]="field.id.toString()"
+              [label]="field.label"
+              [required]="field.required ?? false"
+              [formControlName]="field.id.toString()"
+              [options]="field.options"
             />
           } @default {
             <p>Unsupported field type: {{ field.type }}</p>
           }
         }
       }
-
       <ng-content></ng-content>
     </form>
   `,

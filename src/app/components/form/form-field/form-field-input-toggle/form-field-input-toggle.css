@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.toggle input {
+  margin: 0;
+}

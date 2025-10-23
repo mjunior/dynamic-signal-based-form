@@ -1,40 +1,27 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  inject,
-  input,
-} from '@angular/core';
-import {
-  ControlValueAccessor,
-} from '@angular/forms';
+import { ChangeDetectorRef, Directive, inject, input } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 
-@Component({
-  selector: '',
-  standalone: true,
-  template: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class FormFieldBase implements ControlValueAccessor {
-  private cdr = inject(ChangeDetectorRef);
+@Directive()
+export abstract class FormFieldBase<T> implements ControlValueAccessor {
+  protected cdr = inject(ChangeDetectorRef);
 
   id = input<string>('');
   label = input<string>('');
   placeholder = input<string>('');
   required = input<boolean>(false);
 
-  value = '';
+  value: T | null = null;
   disabled = false;
 
-  private onChange: (value: string) => void = () => {};
+  private onChange: (value: T | null) => void = () => {};
   private onTouched: () => void = () => {};
 
-  writeValue(value: string | null): void {
-    this.value = value ?? '';
+  writeValue(value: T | null): void {
+    this.value = value ?? null;
     this.cdr.markForCheck();
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (value: T | null) => void): void {
     this.onChange = fn;
   }
 
@@ -47,8 +34,7 @@ export class FormFieldBase implements ControlValueAccessor {
     this.cdr.markForCheck();
   }
 
-  onTextInput(event: Event): void {
-    const { value } = event.target as HTMLInputElement;
+  protected emitChange(value: T | null): void {
     if (this.disabled) {
       return;
     }
