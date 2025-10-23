@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FormFieldBase } from '../form-field-base';
+import { FormFieldInputError } from '../form-field-input-error/form-field-input-error';
 
 @Component({
   selector: 'app-form-field-input-number',
   standalone: true,
+  imports: [FormFieldInputError],
   template: `
     <label [for]="id()">{{ label() }}</label>
     <input
@@ -18,16 +20,13 @@ import { FormFieldBase } from '../form-field-base';
       (input)="onNumberInput($event)"
       (blur)="markAsTouched()"
     />
+    <app-form-field-input-error
+      [touched]="ngControl.touched"
+      [errors]="ngControl.errors"
+    />
   `,
   styleUrl: './form-field-input-number.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: FormFieldInputNumber,
-      multi: true,
-    },
-  ],
 })
 export class FormFieldInputNumber extends FormFieldBase<number | null> {
   onNumberInput(event: Event): void {

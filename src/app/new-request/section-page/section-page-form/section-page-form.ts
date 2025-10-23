@@ -112,6 +112,7 @@ export class SectionPageForm {
       controls[controlName] = this.fb.control(defaultValue, validators);
     }
     this.form = this.fb.group(controls);
+    console.log('output', this.form)
     this.formCreated.emit(this.form);
   }
 }

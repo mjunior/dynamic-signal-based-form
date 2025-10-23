@@ -26,13 +26,16 @@ import { SectionPageForm } from './section-page-form/section-page-form';
         [fields]="fields()"
         (formCreated)="onFormCreated($event)"
       >
-        <button type="button" (click)="prevSection()">Prev</button>
-        <button type="button" (click)="nextSection()">Next</button>
+        @if(form) {
+          <button type="button" (click)="prevSection()">Prev</button>
+          <button type="button" (click)="nextSection()" [disabled]="form.invalid">
+            Next
+          </button>
+        }
       </app-section-page-form>
     </div>
   `,
   styleUrl: './section-page.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionPageComponent {
   private state = inject(NewRequestStateService);
@@ -46,6 +49,7 @@ export class SectionPageComponent {
   fields = computed<Field[]>(() => this.currentSection()?.fields || []);
 
   onFormCreated(form: FormGroup): void {
+    console.log('form created');
     this.form = form;
   }
 
@@ -56,7 +60,9 @@ export class SectionPageComponent {
   nextSection() {
     if (this.form) {
       console.log('Form value:', this.form.value);
+      console.log('form valid', this.form.valid);
     }
+
     this.state.nextSection();
     this.router.navigate([
       'new-request',

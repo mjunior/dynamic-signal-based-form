@@ -1,9 +1,17 @@
 import { ChangeDetectorRef, Directive, inject, input } from '@angular/core';
-import { ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, NgControl } from '@angular/forms';
 
 @Directive()
 export abstract class FormFieldBase<T> implements ControlValueAccessor {
   protected cdr = inject(ChangeDetectorRef);
+
+  protected readonly ngControl = inject(NgControl, { self: true });
+
+  constructor() {
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
+    }
+  }
 
   id = input<string>('');
   label = input<string>('');
