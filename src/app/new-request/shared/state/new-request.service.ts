@@ -36,7 +36,9 @@ export class NewRequestStateService {
 
   
   nextSection(): void {
+    console.log('updating...')
     this._currentSectionIndex.update((i) => i + 1);
+    console.log('updated privated', this._currentSectionIndex());
   }
 
   previousSection(): void {

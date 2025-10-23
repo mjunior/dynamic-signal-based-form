@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@a
 import { NewRequestStateService } from '../shared/state/new-request.service';
 import { NgClass } from '@angular/common';
 import { Field } from '../shared/new-request.types';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-section-page',
@@ -22,6 +23,9 @@ import { Field } from '../shared/new-request.types';
           <p>{{ field.label }}</p>
         </div>
         }
+
+        <button (click)="prevSection()">Prev</button>
+        <button (click)="nextSection()">Next</button>
       </div>
     </div>
   `,
@@ -30,12 +34,13 @@ import { Field } from '../shared/new-request.types';
 })
 export class SectionPageComponent implements OnInit {
   private state = inject(NewRequestStateService);
-  currentSection = this.state.currentSection();
+  private router = inject(Router);
+
+  currentSection = this.state.currentSection;
 
   fields = computed<Field[]>(() => {
-    return this.currentSection?.fields || [];
+    return this.currentSection()?.fields || [];
   });
-
 
   schema = this.state.schemaSignal;
 
@@ -44,6 +49,26 @@ export class SectionPageComponent implements OnInit {
   }
 
   isActiveSection(section: any): boolean {
-    return this.currentSection?.id === section.id;
+    return this.currentSection()?.id === section.id;
+  }
+
+  nextSection() {
+    this.state.nextSection();
+    this.router.navigate([
+      'new-request',
+      'sections',
+      this.schema()?.id,
+      this.state.currentSectionIndexSignal(),
+    ]);
+  }
+
+  prevSection() {
+    this.state.previousSection();
+    this.router.navigate([
+      'new-request',
+      'sections',
+      this.schema()?.id,
+      this.state.currentSectionIndexSignal(),
+    ]);
   }
 }
