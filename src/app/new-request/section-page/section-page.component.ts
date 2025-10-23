@@ -1,14 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
-import { NewRequestStateService } from '../shared/state/new-request.service';
-import { NgClass } from '@angular/common';
-import { Field } from '../shared/new-request.types';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { CommonModule, NgClass } from '@angular/common';
+import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FormFieldComponent } from '../../components/form/form-field/form-field.component';
+
+import { NewRequestStateService } from '../shared/state/new-request.service';
+import { Field } from '../shared/new-request.types';
+import { SectionPageForm } from './section-page-form/section-page-form';
 
 @Component({
   selector: 'app-section-page',
   standalone: true,
-  imports: [NgClass, FormFieldComponent],
+  imports: [CommonModule, NgClass, SectionPageForm],
   template: `
     <div class="section-page">
       <div class="sidebar">
@@ -18,38 +20,33 @@ import { FormFieldComponent } from '../../components/form/form-field/form-field.
         </p>
         }
       </div>
-      <div class="main">
-        @for (field of fields(); track field.id) {
-          <div>
-            <app-form-field-component
-              [type]="field.type"
-              [label]="field.label"
-            />
-          </div>
-        }
 
-        <button (click)="prevSection()">Prev</button>
-        <button (click)="nextSection()">Next</button>
-      </div>
+      <app-section-page-form
+        class="main"
+        [fields]="fields()"
+        (formCreated)="onFormCreated($event)"
+      >
+        <button type="button" (click)="prevSection()">Prev</button>
+        <button type="button" (click)="nextSection()">Next</button>
+      </app-section-page-form>
     </div>
   `,
   styleUrl: './section-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SectionPageComponent implements OnInit {
+export class SectionPageComponent {
   private state = inject(NewRequestStateService);
   private router = inject(Router);
 
+  form: FormGroup | null = null;
+
   currentSection = this.state.currentSection;
-
-  fields = computed<Field[]>(() => {
-    return this.currentSection()?.fields || [];
-  });
-
   schema = this.state.schemaSignal;
 
-  ngOnInit(): void {
-    console.log(this.schema());
+  fields = computed<Field[]>(() => this.currentSection()?.fields || []);
+
+  onFormCreated(form: FormGroup): void {
+    this.form = form;
   }
 
   isActiveSection(section: any): boolean {
@@ -57,6 +54,9 @@ export class SectionPageComponent implements OnInit {
   }
 
   nextSection() {
+    if (this.form) {
+      console.log('Form value:', this.form.value);
+    }
     this.state.nextSection();
     this.router.navigate([
       'new-request',
