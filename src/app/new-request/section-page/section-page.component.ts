@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule, NgClass, NgIf } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -10,7 +10,7 @@ import { SectionPageForm } from './section-page-form/section-page-form';
 @Component({
   selector: 'app-section-page',
   standalone: true,
-  imports: [CommonModule, NgClass, SectionPageForm],
+  imports: [CommonModule, NgClass, SectionPageForm, NgIf],
   template: `
     <div class="section-page">
       <div class="sidebar">
@@ -27,10 +27,15 @@ import { SectionPageForm } from './section-page-form/section-page-form';
         (formCreated)="onFormCreated($event)"
       >
         @if(form) {
-          <button type="button" (click)="prevSection()">Prev</button>
-          <button type="button" (click)="nextSection()" [disabled]="form.invalid">
-            Next
-          </button>
+        <button type="button" (click)="prevSection()">Prev</button>
+
+        <button
+          type="button"
+          (click)="nextSection()"
+          [disabled]="form.invalid"
+        >
+          {{ isFinalSection() ? 'Submit' : 'Next' }}
+        </button>
         }
       </app-section-page-form>
     </div>
@@ -44,7 +49,14 @@ export class SectionPageComponent {
   form: FormGroup | null = null;
 
   currentSection = this.state.currentSection;
+  currentSectionIndex = this.state.currentSectionIndexSignal;
   schema = this.state.schemaSignal;
+
+  isFinalSection = computed(() => {
+    return (
+      this.currentSectionIndex() === (this.schema()?.sections.length || 0) - 1
+    );
+  });
 
   fields = computed<Field[]>(() => this.currentSection()?.fields || []);
 
@@ -58,9 +70,13 @@ export class SectionPageComponent {
   }
 
   nextSection() {
-    if (this.form) {
-      console.log('Form value:', this.form.value);
-      console.log('form valid', this.form.valid);
+    if (this.isFinalSection()) {
+      console.log(this.form?.value);
+          this.router.navigate([
+            'new-request',
+            'summary'
+          ]);
+      return;
     }
 
     this.state.nextSection();
