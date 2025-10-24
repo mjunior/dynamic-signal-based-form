@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { NewRequestStateService } from '../shared/state/new-request.service';
 import { Field } from '../shared/new-request.types';
 import { SectionPageForm } from './section-page-form/section-page-form';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-section-page',
@@ -29,11 +31,7 @@ import { SectionPageForm } from './section-page-form/section-page-form';
         @if(form) {
         <button type="button" (click)="prevSection()">Prev</button>
 
-        <button
-          type="button"
-          (click)="nextSection()"
-          [disabled]="form.invalid"
-        >
+        <button type="button" (click)="nextSection()" [disabled]="form.invalid">
           {{ isFinalSection() ? 'Submit' : 'Next' }}
         </button>
         }
@@ -63,19 +61,31 @@ export class SectionPageComponent {
   onFormCreated(form: FormGroup): void {
     console.log('form created');
     this.form = form;
+    this.form.value;
+    this.listenToFormChanges(this.form)
   }
 
   isActiveSection(section: any): boolean {
     return this.currentSection()?.id === section.id;
   }
 
+  private listenToFormChanges(form: FormGroup): void {
+    Object.entries(form.controls).forEach(([key, control]) => {
+      control.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe((value) => {
+          console.log(`Campo "${key}" alterado:`, value);
+        });
+    });
+  }
+
   nextSection() {
     if (this.isFinalSection()) {
       console.log(this.form?.value);
-          this.router.navigate([
-            'new-request',
-            'summary'
-          ]);
+      this.router.navigate(['new-request', 'summary']);
       return;
     }
 
