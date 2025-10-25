@@ -1,12 +1,18 @@
-import { ChangeDetectorRef, Directive, inject, input } from '@angular/core';
+import { ChangeDetectorRef, Directive, inject, input, output } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 
 @Directive()
 export abstract class FormFieldBase<T> implements ControlValueAccessor {
+  blur = output<FocusEvent>();
   protected cdr = inject(ChangeDetectorRef);
-
   protected readonly ngControl = inject(NgControl, { self: true });
 
+  protected emitBlur(event: FocusEvent): void {
+    this.markAsTouched();
+    this.blur.emit(event);
+  }
+
+  
   constructor() {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
@@ -51,6 +57,7 @@ export abstract class FormFieldBase<T> implements ControlValueAccessor {
   }
 
   markAsTouched(): void {
+    this
     this.onTouched();
   }
 }

@@ -18,6 +18,8 @@ import { FormFieldInputText } from '../../../components/form/form-field/form-fie
 import { FormFieldInputNumber } from '../../../components/form/form-field/form-field-input-number/form-field-input-number';
 import { FormFieldInputRadio } from '../../../components/form/form-field/form-field-input-radio/form-field-input-radio';
 import { FormFieldInputToggle } from '../../../components/form/form-field/form-field-input-toggle/form-field-input-toggle';
+import { RequestService } from '../../shared/services/requests.service';
+import { catchError, of, retry } from 'rxjs';
 
 @Component({
   selector: 'app-section-page-form',
@@ -32,42 +34,40 @@ import { FormFieldInputToggle } from '../../../components/form/form-field/form-f
   ],
   template: `
     <form [formGroup]="form" [class]="formClass">
-      @for (field of fields; track field.id) {
-        @switch (field.type) {
-          @case ('text') {
-            <app-form-field-input-text
-              [id]="field.id.toString()"
-              [label]="field.label"
-              [required]="field.required ?? false"
-              [formControlName]="field.id.toString()"
-            />
-          } @case ('number') {
-            <app-form-field-input-number
-              [id]="field.id.toString()"
-              [label]="field.label"
-              [required]="field.required ?? false"
-              [formControlName]="field.id.toString()"
-            />
-          } @case ('toggle') {
-            <app-form-field-input-toggle
-              [id]="field.id.toString()"
-              [label]="field.label"
-              [required]="field.required ?? false"
-              [formControlName]="field.id.toString()"
-            />
-          } @case ('radio') {
-            <app-form-field-input-radio
-              [id]="field.id.toString()"
-              [label]="field.label"
-              [required]="field.required ?? false"
-              [formControlName]="field.id.toString()"
-              [options]="field.options"
-            />
-          } @default {
-            <p>Unsupported field type: {{ field.type }}</p>
-          }
-        }
-      }
+      @for (field of fields; track field.id) { @switch (field.type) { @case
+      ('text') {
+      <app-form-field-input-text
+        [id]="field.id.toString()"
+        [label]="field.label"
+        [required]="field.required ?? false"
+        [formControlName]="field.id.toString()"
+        (blur)="onBlur($event)"
+      />
+      } @case ('number') {
+      <app-form-field-input-number
+        [id]="field.id.toString()"
+        [label]="field.label"
+        [required]="field.required ?? false"
+        [formControlName]="field.id.toString()"
+      />
+      } @case ('toggle') {
+      <app-form-field-input-toggle
+        [id]="field.id.toString()"
+        [label]="field.label"
+        [required]="field.required ?? false"
+        [formControlName]="field.id.toString()"
+      />
+      } @case ('radio') {
+      <app-form-field-input-radio
+        [id]="field.id.toString()"
+        [label]="field.label"
+        [required]="field.required ?? false"
+        [formControlName]="field.id.toString()"
+        [options]="field.options"
+      />
+      } @default {
+      <p>Unsupported field type: {{ field.type }}</p>
+      } } }
       <ng-content></ng-content>
     </form>
   `,
@@ -76,6 +76,7 @@ import { FormFieldInputToggle } from '../../../components/form/form-field/form-f
 })
 export class SectionPageForm {
   private fb = inject(FormBuilder);
+  private requestService = inject(RequestService);
 
   private _fields: Field[] = [];
 
@@ -112,7 +113,36 @@ export class SectionPageForm {
       controls[controlName] = this.fb.control(defaultValue, validators);
     }
     this.form = this.fb.group(controls);
-    console.log('output', this.form)
     this.formCreated.emit(this.form);
+  }
+
+  onBlur(event: any) {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+
+    const name = input.name ?? input.id;
+    const control = name ? this.form.get(name) : null;
+
+    if (!control) {
+      return;
+    }
+
+    const valueChanged = control.dirty; // true if a change happened
+    const currentValue = control.value;
+
+    this.requestService
+      .updateQuestion('98765', name, { value: currentValue })
+      .pipe(
+        retry(1),
+        catchError((err) => {
+          console.log('erro continua', err);
+          return of({error: true});
+        }),
+      )
+      .subscribe((res) => {
+        console.log('res', res);
+      });
   }
 }

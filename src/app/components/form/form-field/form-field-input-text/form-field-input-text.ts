@@ -22,7 +22,7 @@ import { JsonPipe } from '@angular/common';
       [disabled]="disabled"
       [value]="value ?? ''"
       (input)="onTextInput($event)"
-      (blur)="markAsTouched()"
+      (blur)="emitBlur($event)"
     />
     <app-form-field-input-error
       [touched]="ngControl.touched"

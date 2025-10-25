@@ -18,7 +18,7 @@ import { FormFieldInputError } from '../form-field-input-error/form-field-input-
       [disabled]="disabled"
       [value]="value ?? ''"
       (input)="onNumberInput($event)"
-      (blur)="markAsTouched()"
+      (blur)="emitBlur($event)"
     />
     <app-form-field-input-error
       [touched]="ngControl.touched"

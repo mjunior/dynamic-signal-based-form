@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject } from '@angular/core';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,8 +6,9 @@ import { Router } from '@angular/router';
 import { NewRequestStateService } from '../shared/state/new-request.service';
 import { Field } from '../shared/new-request.types';
 import { SectionPageForm } from './section-page-form/section-page-form';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of, retry, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RequestService } from '../shared/services/requests.service';
 
 @Component({
   selector: 'app-section-page',
@@ -43,6 +44,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class SectionPageComponent {
   private state = inject(NewRequestStateService);
   private router = inject(Router);
+  private requestService = inject(RequestService);
+  private destroyRef = inject(DestroyRef);
 
   form: FormGroup | null = null;
 
@@ -59,10 +62,11 @@ export class SectionPageComponent {
   fields = computed<Field[]>(() => this.currentSection()?.fields || []);
 
   onFormCreated(form: FormGroup): void {
-    console.log('form created');
     this.form = form;
-    this.form.value;
-    this.listenToFormChanges(this.form)
+    if (this.state.isRequestInProgress()) {
+      this.form.patchValue(this.state.answersBySection(this.currentSection()!.id));
+    }
+    this.listenToFormChanges(this.form);
   }
 
   isActiveSection(section: any): boolean {
@@ -71,20 +75,32 @@ export class SectionPageComponent {
 
   private listenToFormChanges(form: FormGroup): void {
     Object.entries(form.controls).forEach(([key, control]) => {
-      control.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe((value) => {
-          console.log(`Campo "${key}" alterado:`, value);
-        });
+      control.valueChanges.pipe(
+        tap((value) => {
+          if (this.currentSection()) {
+            this.state.saveAnswerLocally(this.currentSection()!.id, key, value);
+          }
+        }),
+        debounceTime(500),
+        distinctUntilChanged(),
+        switchMap((value) =>
+          this.requestService.updateQuestion('123', key, { value }).pipe(
+            retry(1),
+            catchError(() => {
+              return of({ error: true });
+            })
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((res) => {
+        console.log('res', res);
+      });
     });
   }
 
   nextSection() {
     if (this.isFinalSection()) {
-      console.log(this.form?.value);
       this.router.navigate(['new-request', 'summary']);
       return;
     }

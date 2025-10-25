@@ -15,6 +15,7 @@ export class NewRequestStateService {
   readonly schemaSignal = this._schema.asReadonly();
   readonly currentSectionIndexSignal = this._currentSectionIndex.asReadonly();
   readonly answersBySectionSginal = this._answersBySection.asReadonly();
+  readonly requesInProgressSignal = signal<boolean>(false);
 
   readonly currentSection = computed(() => {
     const schema = this._schema();
@@ -27,18 +28,34 @@ export class NewRequestStateService {
     return this._answersBySection()[index] ?? {};
   });
 
+  readonly isRequestInProgress = computed(() => this.requesInProgressSignal());
+
+  saveAnswerLocally(sectionId: string, questionId: string, answer: any){
+    this._answersBySection.update((answers) => ({
+      ...answers,
+      [sectionId]: {
+        ...(answers[sectionId] ?? {}),
+        [questionId]: answer
+      }
+    }));
+
+    console.log('local answers state', this._answersBySection());
+  }
+
+  answersBySection(sectionId: string): any {
+    return this._answersBySection()[sectionId] ?? {};
+  }
 
   startNewRequest(schema: Schema): void {
     this._schema.set(schema);
+    this.requesInProgressSignal.set(true);
     this._currentSectionIndex.set(0);
     this._answersBySection.set({});
   }
 
   
   nextSection(): void {
-    console.log('updating...')
     this._currentSectionIndex.update((i) => i + 1);
-    console.log('updated privated', this._currentSectionIndex());
   }
 
   previousSection(): void {
