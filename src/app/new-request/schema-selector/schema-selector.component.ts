@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { NewRequestStateService } from '../shared/state/new-request.service';
 import { ChipSelectorComponent, ChipOption } from '../../components/chip-selector/chip-selector.component';
 import { DsButtonComponent } from '../../components/ds-button/ds-button.component';
+import { LoadingComponent } from '../../components/loading/loading.component';
 
 @Component({
   selector: 'app-schema-selector',
   standalone: true,
-  imports: [ChipSelectorComponent, DsButtonComponent],
+  imports: [ChipSelectorComponent, DsButtonComponent, LoadingComponent],
   template: `
     <div class="flex flex-col items-center justify-center h-screen">
       <div class="schema-selector">
@@ -18,22 +19,26 @@ import { DsButtonComponent } from '../../components/ds-button/ds-button.componen
         </h1>
 
         <div class="w-full flex flex-col items-center justify-center">
-          <app-chip-selector
-            [options]="chipOptions()"
-            [selected]="selectedSchemaId()"
-            (selectionChange)="onSchemaSelect($event)"
-          />
+          @if (isLoading()) {
+            <app-loading />
+          } @else {
+            <app-chip-selector
+              [options]="chipOptions()"
+              [selected]="selectedSchemaId()"
+              (selectionChange)="onSchemaSelect($event)"
+            />
 
-          <div class="mt-8 w-full max-w-[200px]">
-            <ds-button
-              (click)="start()"
-              [disabled]="!selectedSchemaSignal()"
-              variant="primary"
-              size="fluid"
-            >
-              Start
-            </ds-button>
-          </div>
+            <div class="mt-8 w-full max-w-[200px]">
+              <ds-button
+                (click)="start()"
+                [disabled]="!selectedSchemaSignal()"
+                variant="primary"
+                size="fluid"
+              >
+                Start
+              </ds-button>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -47,6 +52,7 @@ export class SchemaSelectorComponent implements OnInit {
   private state = inject(NewRequestStateService);
   selectedSchemaSignal = signal<Schema | null>(null);
   schemasSignal = signal<Schema[]>([]);
+  isLoading = signal<boolean>(true);
 
   // Computed signal for chip options
   chipOptions = computed<ChipOption[]>(() => {
@@ -63,8 +69,10 @@ export class SchemaSelectorComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.isLoading.set(true);
     this.schemaService.getSchemas().subscribe((schemas) => {
       this.schemasSignal.set(schemas);
+      this.isLoading.set(false);
     });
   }
 
