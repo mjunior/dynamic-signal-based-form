@@ -27,6 +27,8 @@ export class DsButtonComponent {
   click = output<MouseEvent>();
 
   handleClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
     if (!this.disabled()) {
       this.click.emit(event);
     }

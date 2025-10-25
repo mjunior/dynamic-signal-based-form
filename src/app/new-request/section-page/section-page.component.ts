@@ -11,11 +11,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RequestService } from '../shared/services/requests.service';
 import { ToastService } from '../../components/toast/toast.service';
 import { SectionPageSidebarComponent, SidebarItem } from './section-page-sidebar/section-page-sidebar.component';
-
+import { DsButtonComponent } from '../../components/ds-button/ds-button.component';
 @Component({
   selector: 'app-section-page',
   standalone: true,
-  imports: [CommonModule, SectionPageForm, SectionPageSidebarComponent],
+  imports: [
+    CommonModule,
+    SectionPageForm,
+    SectionPageSidebarComponent,
+    DsButtonComponent,
+  ],
   template: `
     <div class="section-page flex h-screen max-w-5xl mx-auto mt-32">
       <div class="sidebar w-1/4">
@@ -25,22 +30,30 @@ import { SectionPageSidebarComponent, SidebarItem } from './section-page-sidebar
         />
       </div>
       <div class="w-3/4">
-          <app-section-page-form
-            class="main w-full"
-            [fields]="fields()"
-            (formCreated)="onFormCreated($event)"
+        <app-section-page-form
+          class="main w-full"
+          [fields]="fields()"
+          (formCreated)="onFormCreated($event)"
+        >
+          @if(form) { @if (currentSectionIndex() > 0) {
+            <ds-button
+              (click)="prevSection()"
+              [disabled]="form.invalid"
+              variant="primary"
+            >
+              Previous
+            </ds-button>
+          }
+
+          <ds-button
+            (click)="nextSection()"
+            [disabled]="form.invalid"
+            variant="primary"
           >
-            @if(form) {
-              <button type="button" (click)="prevSection()">Prev</button>
-              <button
-                type="button"
-                (click)="nextSection()"
-                [disabled]="form.invalid"
-              >
-                {{ isFinalSection() ? 'Submit' : 'Next' }}
-              </button>
-            }
-          </app-section-page-form>
+            {{ isFinalSection() ? 'Submit' : 'Next' }}
+          </ds-button>
+          }
+        </app-section-page-form>
       </div>
     </div>
   `,
