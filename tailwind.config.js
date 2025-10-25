@@ -12,6 +12,7 @@ module.exports = {
           light: '#DBF6F0',
           'most-light': '#F2FDFB',
         },
+        'state-bg': '#F6F6F7',
       },
       fontFamily: {
         sans: ['Open Sans', 'sans-serif'],
