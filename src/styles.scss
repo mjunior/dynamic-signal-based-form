@@ -1,15 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
-
-/* Import Open Sans font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
-
-/* Tailwind CSS directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global background color */
 html,
 body {
   @apply bg-state-bg;
+}
+
+@layer utilities {
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply disabled:bg-gray-100 disabled:cursor-not-allowed;
+  }
 }

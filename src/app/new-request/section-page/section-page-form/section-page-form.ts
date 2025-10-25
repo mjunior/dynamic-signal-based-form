@@ -20,6 +20,7 @@ import { FormFieldInputRadio } from '../../../components/form/form-field/form-fi
 import { FormFieldInputToggle } from '../../../components/form/form-field/form-field-input-toggle/form-field-input-toggle';
 import { RequestService } from '../../shared/services/requests.service';
 import { catchError, of, retry } from 'rxjs';
+import { QuestionItemBoxComponent } from './question-item-box/question-item-box.component';
 
 @Component({
   selector: 'app-section-page-form',
@@ -31,43 +32,50 @@ import { catchError, of, retry } from 'rxjs';
     FormFieldInputNumber,
     FormFieldInputRadio,
     FormFieldInputToggle,
+    QuestionItemBoxComponent,
   ],
   template: `
-    <form [formGroup]="form" [class]="formClass">
-      @for (field of fields; track field.id) { @switch (field.type) { @case
-      ('text') {
-      <app-form-field-input-text
-        [id]="field.id.toString()"
-        [label]="field.label"
-        [required]="field.required ?? false"
-        [formControlName]="field.id.toString()"
-        (blur)="onBlur($event)"
-      />
-      } @case ('number') {
-      <app-form-field-input-number
-        [id]="field.id.toString()"
-        [label]="field.label"
-        [required]="field.required ?? false"
-        [formControlName]="field.id.toString()"
-      />
-      } @case ('toggle') {
-      <app-form-field-input-toggle
-        [id]="field.id.toString()"
-        [label]="field.label"
-        [required]="field.required ?? false"
-        [formControlName]="field.id.toString()"
-      />
-      } @case ('radio') {
-      <app-form-field-input-radio
-        [id]="field.id.toString()"
-        [label]="field.label"
-        [required]="field.required ?? false"
-        [formControlName]="field.id.toString()"
-        [options]="field.options"
-      />
-      } @default {
-      <p>Unsupported field type: {{ field.type }}</p>
-      } } }
+    <form [formGroup]="form">
+      <div class="flex flex-col gap-1">
+        @for (field of fields; track field.id) {
+        <app-question-item-box class="mb-4">
+          @switch (field.type) { @case ('text') {
+          <app-form-field-input-text
+            [type]="field.type"
+            [id]="field.id.toString()"
+            [label]="field.label"
+            [required]="field.required ?? false"
+            [formControlName]="field.id.toString()"
+          />
+          } @case ('number') {
+          <app-form-field-input-text
+            [type]="field.type"
+            [id]="field.id.toString()"
+            [label]="field.label"
+            [required]="field.required ?? false"
+            [formControlName]="field.id.toString()"
+          />
+          } @case ('toggle') {
+          <app-form-field-input-toggle
+            [id]="field.id.toString()"
+            [label]="field.label"
+            [required]="field.required ?? false"
+            [formControlName]="field.id.toString()"
+          />
+          } @case ('radio') {
+          <app-form-field-input-radio
+            [id]="field.id.toString()"
+            [label]="field.label"
+            [required]="field.required ?? false"
+            [formControlName]="field.id.toString()"
+            [options]="field.options"
+          />
+          } @default {
+          <p>Unsupported field type: {{ field.type }}</p>
+          } }
+        </app-question-item-box>
+        }
+      </div>
       <ng-content></ng-content>
     </form>
   `,
@@ -138,8 +146,8 @@ export class SectionPageForm {
         retry(1),
         catchError((err) => {
           console.log('erro continua', err);
-          return of({error: true});
-        }),
+          return of({ error: true });
+        })
       )
       .subscribe((res) => {
         console.log('res', res);

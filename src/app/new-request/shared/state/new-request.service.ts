@@ -61,4 +61,8 @@ export class NewRequestStateService {
   previousSection(): void {
     this._currentSectionIndex.update((i) => i - 1);
   }
+
+  goToSection(index: number): void {
+    this._currentSectionIndex.set(index);
+  }
 }

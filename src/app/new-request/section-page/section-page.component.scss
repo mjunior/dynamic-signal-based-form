@@ -4,12 +4,5 @@
   .section-page {
     display: flex;
     gap: 10px;
-    .sidebar {
-      background: #eee;
-
-      .active {
-        background: #aaa;
-      }
-    }
   }
 }
