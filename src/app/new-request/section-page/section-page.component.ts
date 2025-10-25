@@ -9,18 +9,18 @@ import { SectionPageForm } from './section-page-form/section-page-form';
 import { catchError, debounceTime, distinctUntilChanged, of, retry, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RequestService } from '../shared/services/requests.service';
-
+import { ToastService } from '../../components/toast/toast.service';
 @Component({
   selector: 'app-section-page',
   standalone: true,
-  imports: [CommonModule, NgClass, SectionPageForm, NgIf],
+  imports: [CommonModule, NgClass, SectionPageForm],
   template: `
     <div class="section-page">
       <div class="sidebar">
         @for(section of schema()?.sections; track section.id) {
-        <p [ngClass]="{ active: isActiveSection(section) }">
-          {{ section.title }}
-        </p>
+          <p [ngClass]="{ active: isActiveSection(section) }">
+            {{ section.title }}
+          </p>
         }
       </div>
 
@@ -30,11 +30,11 @@ import { RequestService } from '../shared/services/requests.service';
         (formCreated)="onFormCreated($event)"
       >
         @if(form) {
-        <button type="button" (click)="prevSection()">Prev</button>
+          <button type="button" (click)="prevSection()">Prev</button>
 
-        <button type="button" (click)="nextSection()" [disabled]="form.invalid">
-          {{ isFinalSection() ? 'Submit' : 'Next' }}
-        </button>
+          <button type="button" (click)="nextSection()" [disabled]="form.invalid">
+            {{ isFinalSection() ? 'Submit' : 'Next' }}
+          </button>
         }
       </app-section-page-form>
     </div>
@@ -46,7 +46,7 @@ export class SectionPageComponent {
   private router = inject(Router);
   private requestService = inject(RequestService);
   private destroyRef = inject(DestroyRef);
-
+  private toastService = inject(ToastService);
   form: FormGroup | null = null;
 
   currentSection = this.state.currentSection;
@@ -83,18 +83,24 @@ export class SectionPageComponent {
         }),
         debounceTime(500),
         distinctUntilChanged(),
-        switchMap((value) =>
-          this.requestService.updateQuestion('123', key, { value }).pipe(
+        switchMap((value) => {
+          this.toastService.show('info', 'Saving answer...');
+
+          return this.requestService.updateQuestion('123', key, { value }).pipe(
             retry(1),
             catchError(() => {
-              return of({ error: true });
+              return of({ success: false });
             })
-          )
-        ),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((res) => {
-        console.log('res', res);
+        if (res?.success) {
+          this.toastService.show('success', 'Saved successfully!');
+        } else {
+          this.toastService.show('error', 'Failed to save answer. Try again later.');
+        }
       });
     });
   }

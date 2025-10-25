@@ -1,0 +1,56 @@
+:host {
+  .toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 0px;
+    padding: 5px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: fadeInOut 3s ease-in-out forwards;
+    cursor: pointer;
+    z-index: 9999;
+    min-width: 240px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .success {
+    background: #2ecc71;
+  }
+
+  .error {
+    background: #e74c3c;
+  }
+
+  .info {
+    background: #3498db;
+  }
+
+  .warning {
+    background: #f39c12;
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+
+    10% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    90% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+  }
+}

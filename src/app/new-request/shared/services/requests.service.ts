@@ -25,7 +25,6 @@ export class RequestService {
       delay(delayMs),
       mergeMap((result) =>{
         if (shouldFail) {
-          console.log('FAILED REQUEST');
           return throwError(
               () => new Error('Failed to save answer. Try again later.')
             )
