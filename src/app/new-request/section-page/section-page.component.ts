@@ -39,7 +39,7 @@ import { DsButtonComponent } from '../../components/ds-button/ds-button.componen
             <ds-button
               (click)="prevSection()"
               [disabled]="form.invalid"
-              variant="primary"
+              variant="secondary"
             >
               Previous
             </ds-button>

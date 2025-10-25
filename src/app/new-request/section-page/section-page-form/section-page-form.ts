@@ -76,7 +76,9 @@ import { QuestionItemBoxComponent } from './question-item-box/question-item-box.
         </app-question-item-box>
         }
       </div>
-      <ng-content></ng-content>
+      <div class="flex gap-2">
+        <ng-content></ng-content>
+      </div>
     </form>
   `,
   styleUrl: './section-page-form.css',
