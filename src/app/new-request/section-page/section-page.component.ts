@@ -38,7 +38,6 @@ import { DsButtonComponent } from '../../components/ds-button/ds-button.componen
           @if(form) { @if (currentSectionIndex() > 0) {
             <ds-button
               (click)="prevSection()"
-              [disabled]="form.invalid"
               variant="secondary"
             >
               Previous
